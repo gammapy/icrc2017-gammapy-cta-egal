@@ -82,6 +82,6 @@ out_file = './plots/'
 if not os.path.exists(out_file):
     os.makedirs(out_file)
 
-out_file += 'attenuation.pdf'
+out_file += 'attenuation.png'
 
-plt.savefig(out_file, format='pdf')
+plt.savefig(out_file, format='png')
