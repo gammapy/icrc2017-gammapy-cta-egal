@@ -7,4 +7,4 @@ The examples come from the ICRC proceeding "Gammapy: high level data analysis fo
  - [The EBL scale factor](./ebl_scale/)
  - [Observational window for gamma-ray bursts](./ebl_scale/)
 
-Those examples have been developped with the [Gammapy](http://docs.gammapy.org/en/latest/) version 0.6.dev4766 and the [Sherpa](https://github.com/sherpa/sherpa) version 4.9.0.
+Those examples have been tested with the [Gammapy](http://docs.gammapy.org/en/latest/) version 0.6.dev4766 and the [Sherpa](https://github.com/sherpa/sherpa) version 4.9.0.
