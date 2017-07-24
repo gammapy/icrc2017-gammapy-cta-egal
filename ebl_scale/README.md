@@ -4,4 +4,4 @@
 
 ## Attenuation due to the EBL and to an intrinsic cut-off
 
-![alt tag](./plots/attenuation.pdf)
+![alt tag](./plots/attenuation.png)

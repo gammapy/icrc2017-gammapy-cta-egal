@@ -1,3 +1,3 @@
 ### Observational window for gamma-ray bursts
 
-![alt tag](./plots/grb_twindow.pdf)
+![alt tag](./plots/grb_twindow.png)
