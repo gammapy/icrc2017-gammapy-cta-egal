@@ -1,13 +1,10 @@
-import os
-import sys
-
 import numpy as np
-
 import astropy.units as u
 from gammapy.spectrum.models import AbsorbedSpectralModel, PowerLaw, Absorption
 from gammapy.scripts.cta_utils import (CTAObservationSimulation,
                                        ObservationParameters, Target)
 from gammapy.scripts import CTAPerf
+
 
 # Utilties functions for simulation
 def simulate(model, perf, livetime, emin, emax, obs_id, seed):
@@ -32,6 +29,7 @@ def simulate(model, perf, livetime, emin, emax, obs_id, seed):
                                                  obs_id=obs_id,
                                                  seed=seed)
     return simu
+
 
 # Output directory
 outdir = './data/'
@@ -88,6 +86,7 @@ import sherpa.astro.datastack as sh
 from sherpa.models import ArithmeticModel
 from sherpa.models import Parameter as SherpaParameter
 
+
 # Definition of the sherpa absorption class
 class SherpaAbsorption(ArithmeticModel):
     """
@@ -100,7 +99,6 @@ class SherpaAbsorption(ArithmeticModel):
     def __init__(self,
                  name='EBL',
                  filename='dominguez'):
-
         # Create EBL data array the same way it is done in Gammapy
         absorption = Absorption.read_builtin(filename)
 
@@ -133,13 +131,14 @@ class SherpaAbsorption(ArithmeticModel):
         z = p[0]
         alpha = p[1]
 
-        energies = xlo * u.keV   # Cause we're using sherpa
+        energies = xlo * u.keV  # Cause we're using sherpa
 
         if xhi is not None:
-            energies += xhi * u.keV   # Cause we're using sherpa
+            energies += xhi * u.keV  # Cause we're using sherpa
             energies *= 0.5
 
         return np.power(self.ebl.evaluate(parameter=z, energy=energies), alpha)
+
 
 # Add sherpa model
 sh.add_model(SherpaAbsorption)
@@ -151,7 +150,7 @@ sherpa_model = 'powlaw1d.pwl_' + str(obs_id) + '*sherpaabsorption.ebl_' + str(ob
 sh.set_source(obs_id, sherpa_model)
 pwl_0.gamma = 2.
 pwl_0.ref = (1 * u.TeV).to('keV')  # sherpa works in keV
-pwl_0.ampl = (1.e-12 * u.Unit('1 / (cm2 s TeV)')).to('1 / (cm2 s keV)')   # sherpa works in keV
+pwl_0.ampl = (1.e-12 * u.Unit('1 / (cm2 s TeV)')).to('1 / (cm2 s keV)')  # sherpa works in keV
 ebl_0.redshift = 0.2
 ebl_0.alpha = 1.  # EBL scale
 
@@ -161,7 +160,7 @@ sherpa_model = 'powlaw1d.pwl_' + str(obs_id) + '*sherpaabsorption.ebl_' + str(ob
 sh.set_source(obs_id, sherpa_model)
 pwl_1.gamma = 2.
 pwl_1.ref = (1 * u.TeV).to('keV')  # sherpa works with keV
-pwl_1.ampl = (1.e-12 * u.Unit('1 / (cm2 s TeV)')).to('1 / (cm2 s keV)')   # sherpa works with keV
+pwl_1.ampl = (1.e-12 * u.Unit('1 / (cm2 s TeV)')).to('1 / (cm2 s keV)')  # sherpa works with keV
 ebl_1.redshift = 0.3
 ebl_1.alpha = 1.  # EBL scale
 
@@ -177,7 +176,7 @@ print(sh.get_model(1))
 # defined when calling the write method ==> TO BE CHECK !!!!
 emin = 0.03 * u.TeV
 emax = 10 * u.TeV
-sh.notice((emin.to('keV')).value,(emax.to('keV')).value)
+sh.notice((emin.to('keV')).value, (emax.to('keV')).value)
 
 # Fit with Cash statistics (full forward folding)
 # http://cxc.harvard.edu/sherpa/statistics/#cash
@@ -190,7 +189,7 @@ sh.conf()
 # Access to fitted parameters
 res = sh.get_conf_results()
 pvals1 = zip(res.parvals, res.parmins, res.parmaxes)
-pvals2 = [(v, l, h) for (v,l,h) in pvals1]
+pvals2 = [(v, l, h) for (v, l, h) in pvals1]
 fparams = dict(zip(res.parnames, pvals2))
 
 alpha = fparams['ebl_0.alpha'][0]
@@ -199,8 +198,8 @@ alpha_errmax = fparams['ebl_0.alpha'][2]
 
 print('EBL scale={}, Err-={}, Err+={}'.format(
     alpha,
-    alpha+alpha_errmin,
-    alpha+alpha_errmax)
+    alpha + alpha_errmin,
+    alpha + alpha_errmax)
 )
 
 # Clean memory

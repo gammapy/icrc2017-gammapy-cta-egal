@@ -1,16 +1,10 @@
 """
 Small script to plot results
 """
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-
-from astropy.io import fits
 from astropy.table import Table
-import astropy.units as u
-
 import matplotlib.pyplot as plt
-from matplotlib import collections  as mc
+from matplotlib.collections import LineCollection
 
 # Read results
 t_orig = Table.read('./data/results_cut1.00TeV.fits')
@@ -24,7 +18,6 @@ condition = np.logical_or.reduce((t_orig['CLASS'] == 'fsrq',
                                   t_orig['CLASS'] == 'FSRQ'))
 index = np.where(condition)
 t_orig_fsrq = t_orig[index]
-
 
 # Select detected sources
 t = t_orig[t_orig['Sigma'] >= 5.]
@@ -65,11 +58,11 @@ ax.errorbar(t_fsrq['Redshift'], t_fsrq['SigmaCut'],
 lines_list = list()
 for row in t:
     x1 = row['Redshift']
-    y1 = row['Sigma']    
+    y1 = row['Sigma']
     x2 = row['Redshift']
-    y2 = row['SigmaCut']    
+    y2 = row['SigmaCut']
     lines_list.append([(x1, y1), (x2, y2)])
-lc = mc.LineCollection(lines_list, colors='b', linewidths=1, alpha=0.2)
+lc = LineCollection(lines_list, colors='b', linewidths=1, alpha=0.2)
 ax.add_collection(lc)
 
 ax.set_yscale('log')
@@ -79,10 +72,10 @@ ax.set_xlim(0.02, 2.)
 ax.set_xlabel('Redshift')
 ax.set_ylabel('Significance (20 h livetime)')
 
-ax.plot([0.02,2.],[5.,5.], c='green', lw=1, ls='--')
+ax.plot([0.02, 2.], [5., 5.], c='green', lw=1, ls='--')
 
 ax.text(0.35, 0.93, 'TECHNICAL PLOT', style='italic', fontweight='bold',
-        bbox={'facecolor':'white', 'alpha':1, 'pad':3},
+        bbox={'facecolor': 'white', 'alpha': 1, 'pad': 3},
         verticalalignment='bottom', horizontalalignment='right',
         transform=ax.transAxes, fontsize=15, color='black')
 
@@ -91,10 +84,5 @@ ax.legend(loc='best', numpoints=1)
 plt.tight_layout()
 plt.show()
 
-out_file = './plots/'
-if not os.path.exists(out_file):
-    os.makedirs(out_file)
-
-out_file += 'cut_off_agn_pop.pdf'
-
-plt.savefig(out_file, format='pdf')
+filename = 'plots/cut_off_agn_pop.pdf'
+plt.savefig(filename, format='pdf')

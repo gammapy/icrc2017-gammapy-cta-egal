@@ -1,9 +1,6 @@
-import os
 import numpy as np
 import matplotlib.pyplot as plt
-
 import astropy.units as u
-
 from gammapy.spectrum.models import (PowerLaw, PowerLaw2,
                                      AbsorbedSpectralModel, Absorption)
 from gammapy.scripts import CTAPerf
@@ -15,10 +12,10 @@ n_bins = 20
 tmin = 20
 tmax = 172800
 
-xmin, xmax = np.log10([tmin,tmax])
+xmin, xmax = np.log10([tmin, tmax])
 t_start = np.logspace(xmin, xmax, n_bins) * u.s
 
-xmin, xmax = np.log10([tmin,tmax])
+xmin, xmax = np.log10([tmin, tmax])
 t_stop = np.logspace(xmin, xmax, n_bins) * u.s
 
 # GRB template
@@ -26,10 +23,10 @@ grb_template = dict(name='GRB 080916C',
                     redshift=3.,
                     index_template=2.0,
                     int_flux=500e-5 * u.Unit('1 / (cm2 s)'),
-                    int_emin = 0.1 * u.GeV,
-                    int_emax = 10 * u.GeV,
+                    int_emin=0.1 * u.GeV,
+                    int_emax=10 * u.GeV,
                     index_decay=1.7,
-                    tp = 6.5 * u.s)
+                    tp=6.5 * u.s)
 
 # Add starting observation time, 20 s after peak
 grb_template['t0'] = 20 * u.s + grb_template['tp']
@@ -44,7 +41,8 @@ grb_template['amplitude_template'] = PowerLaw2.evaluate(
     emax=grb_template['int_emax']
 )
 # Add differential flux at t0
-grb_template['amplitude_template_t0'] = grb_template['amplitude_template'] * np.power(grb_template['t0'] / grb_template['tp'], -grb_template['index_decay'])
+grb_template['amplitude_template_t0'] = grb_template['amplitude_template'] * np.power(
+    grb_template['t0'] / grb_template['tp'], -grb_template['index_decay'])
 
 # EBL absorption
 absorption = Absorption.read_builtin('dominguez')
@@ -63,13 +61,13 @@ for i, start in enumerate(t_start):
     for j, stop in enumerate(t_stop):
 
         delta_t = stop - start  # livetime
-        
+
         if delta_t <= 0:  # only interested in physical intervals
             sigma[i][j] = 0.
             continue
 
         # Obs params
-        livetime  = delta_t
+        livetime = delta_t
         emin = 0.03 * u.TeV
         emax = 1. * u.TeV
         alpha = 0.2 * u.Unit('')
@@ -83,7 +81,7 @@ for i, start in enumerate(t_start):
         index_decay = grb_template['index_decay']
         amplitude_template_t0 = grb_template['amplitude_template_t0']
         t0 = grb_template['t0']
-        
+
         time_from_t0 = np.power(stop, 1. - index_decay) - np.power(start, 1. - index_decay)
         time_from_t0 /= (stop - start)
         time_from_t0 /= 1 - index_decay
@@ -120,7 +118,7 @@ sigma.transpose()
 
 # Plot the significance for each time interval
 plt.figure()
-x, y = np.meshgrid(t_start.value,t_stop.value)
+x, y = np.meshgrid(t_start.value, t_stop.value)
 plt.imshow(sigma,
            extent=(y.min(), y.max(), x.max(), x.min()),
            cmap='hot',
@@ -136,10 +134,5 @@ plt.tight_layout()
 plt.show()
 
 # Save figure in pdf
-out_file = './plots/'
-if not os.path.exists(out_file):
-    os.makedirs(out_file)
-
-out_file += 'grb_twindow.png'
-
-plt.savefig(out_file, format='png')
+filename = 'plots/grb_twindow.png'
+plt.savefig(filename, format='png')
