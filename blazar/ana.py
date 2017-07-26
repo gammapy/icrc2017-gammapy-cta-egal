@@ -4,14 +4,9 @@ Example script to analyse 3FHL data. Does:
  - source simulation with and without cut-off in Fermi spectra
  - save results (significance and so on)
 """
-import os
 import numpy as np
-import matplotlib.pyplot as plt
-
 import astropy.units as u
 from astropy.table import Table, Column, vstack
-from astropy.io import fits
-
 from gammapy.spectrum.models import AbsorbedSpectralModel, Absorption, SpectralModel
 from gammapy.utils.modeling import Parameter, ParameterList
 from gammapy.scripts import CTAPerf
@@ -19,10 +14,12 @@ from gammapy.scripts.cta_utils import (CTAObservationSimulation, Target,
                                        ObservationParameters)
 from gammapy.catalog import SourceCatalog3FHL
 
+
 class AbsorbedSpectralModelExpoCutOff(SpectralModel):
     """
     Class to handle any spectra with a cut-off
     """
+
     def __init__(self, spectral_model, cut_off):
         self.spectral_model = spectral_model
         self.cut_off = cut_off
@@ -33,7 +30,7 @@ class AbsorbedSpectralModelExpoCutOff(SpectralModel):
 
         # Add parameter to the list
         par = Parameter('cut_off', cut_off,
-                        parmin=10 *  u.MeV, parmax=100 * u.TeV,
+                        parmin=10 * u.MeV, parmax=100 * u.TeV,
                         frozen=True)
         param_list.append(par)
 
@@ -42,14 +39,15 @@ class AbsorbedSpectralModelExpoCutOff(SpectralModel):
     def evaluate(self, energy, **kwargs):
         """Evaluate the model at a given energy."""
         flux = self.spectral_model(energy=energy)
-        absorption = np.exp(- energy/(self.cut_off.to(energy.unit)))
+        absorption = np.exp(- energy / (self.cut_off.to(energy.unit)))
         return flux * absorption
+
 
 def average_simu(target, perf, params, n=20):
     """
     Function to compute average significance for N trials
     """
-    
+
     sigma_list = []
     for i in range(n):
         simu = CTAObservationSimulation.simulate_obs(perf=perf,
@@ -67,10 +65,11 @@ def average_simu(target, perf, params, n=20):
 
     sigma_rms = 0
     for sigma in sigma_list:
-        sigma_rms += (sigma-av_sigma)**2
+        sigma_rms += (sigma - av_sigma) ** 2
     sigma_rms = sigma_rms / float(len(sigma_list))
 
     return av_sigma, np.sqrt(sigma_rms)
+
 
 fermi = SourceCatalog3FHL()
 table_3fhl = fermi.table
@@ -130,7 +129,6 @@ print('Selected blazars: {} (bll={}, fsrq={})'.format(
 # Replace table, dirty but efficient
 fermi.table = table
 
-
 # Performance
 irf_dir = '$GAMMAPY_EXTRA/datasets/cta/perf_prod2/point_like_non_smoothed/'
 south_irf_file = 'South_5h.fits.gz'
@@ -158,7 +156,7 @@ src_z = np.zeros(n_src, dtype=float)
 
 # Loop on sources
 for idx, src in enumerate(fermi):
-    
+
     name = src.data['Source_Name']
     redshift = src.data['Redshift']
     fermi_model = src.spectral_model
@@ -170,7 +168,7 @@ for idx, src in enumerate(fermi):
         is_south = True
         ana = 'S'
     print('Processing {} {} ({}/{})'.format(src_type, name, idx + 1, len(fermi.table)))
-    
+
     # Observation parameters
     emin = 0.05 * u.TeV
     emax = 100. * u.TeV
@@ -233,10 +231,5 @@ t['SigmaCut'] = Column(src_sigma_cut, unit='', description='')
 t['SigmaCutErr'] = Column(src_sigma_cut_err, unit='', description='')
 
 # Save results
-out_dir = './data/'
-if not os.path.exists(out_dir):
-    os.makedirs(out_dir)
-
-out_file = 'results_cut{:.2f}{}.fits'.format(cut_off.value, cut_off.unit)
-t.write(out_dir + out_file, format='fits', overwrite=True)
-
+filename = 'data/results_cut{:.2f}{}.fits'.format(cut_off.value, cut_off.unit)
+t.write(filename, format='fits', overwrite=True)
