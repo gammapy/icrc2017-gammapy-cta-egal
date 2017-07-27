@@ -213,5 +213,5 @@ t['SigmaCut'] = Column(src_sigma_cut, unit='', description='')
 t['SigmaCutErr'] = Column(src_sigma_cut_err, unit='', description='')
 
 # Save results
-filename = 'data/results_cut{:.2f}{}.fits'.format(cut_off.value, cut_off.unit)
+filename = 'results_cut{:.2f}{}.fits'.format(cut_off.value, cut_off.unit)
 t.write(filename, format='fits', overwrite=True)

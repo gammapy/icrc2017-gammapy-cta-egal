@@ -4,7 +4,7 @@ from astropy.table import Table
 import matplotlib.pyplot as plt
 import numpy as np
 
-table = Table.read('data/results_cut1.00TeV.fits')
+table = Table.read('results_cut1.00TeV.fits')
 print('Number of sources:', len(table))
 table = table[table['Sigma'] >= 5.]
 print('Number of detected sources:', len(table))
@@ -52,11 +52,11 @@ ax.grid(which='both')
 ax.legend(loc='upper right')
 fig.tight_layout()
 
-filename = 'plots/cut_off_agn_pop.png'
+filename = 'cut_off_agn_pop.png'
 print('Writing', filename)
 fig.savefig(filename, format='png', dpi=300)
 
-filename = 'plots/cut_off_agn_pop.pdf'
+filename = 'cut_off_agn_pop.pdf'
 print('Writing', filename)
 fig.savefig(filename, format='pdf')
 
