@@ -8,6 +8,10 @@ from gammapy.scripts import CTAPerf
 from gammapy.scripts.cta_utils import (CTAObservationSimulation, Target,
                                        ObservationParameters)
 
+import gammapy
+print(gammapy.__version__)
+print(gammapy)
+
 # Define start and stop times for the simulation
 t_start = np.logspace(np.log10(20), np.log10(172800), num=20) * u.s
 t_stop = t_start  # could choose a different time binning here
@@ -90,9 +94,9 @@ def compute_sigma(start, stop):
     target = Target(name='GRB 080916C', model=spectral_model)
 
     # Simulation
-    simu = CTAObservationSimulation.simulate_obs(perf=perf,
-                                                 target=target,
-                                                 obs_param=obs_param)
+    simu = CTAObservationSimulation.simulate_obs(
+        perf=perf, target=target, obs_param=obs_param, random_state=0,
+    )
     stats = simu.total_stats_safe_range
     return stats.sigma
 
