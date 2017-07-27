@@ -57,8 +57,7 @@ while z <= zmax:
     count = count + 1
 
 # Plot results
-plt.figure()
-ax = plt.gca()
+fig, ax = plt.subplots()
 ax.plot(z_ebl, e_ebl.value, label=r'EBL - 63% absorption', color='green')
 ax.plot(z_cutoff, e_cutoff.value, label=r'Cut-off - 63% attenuation', color='red', ls='--')
 
@@ -68,12 +67,11 @@ ax.set_xlim([zmin, zmax])
 ax.set_ylabel('Energy [{}]'.format(venergy.unit))
 ax.set_xlabel('Redshift')
 
-plt.grid(which='both')
-plt.legend(loc='best')
-plt.tight_layout()
-plt.show()
+ax.grid(which='both')
+ax.legend(loc='best')
+fig.tight_layout()
 
 # Save figure in pdf
 filename = 'attenuation.png'
 print('Writing', filename)
-plt.savefig(filename, format='png')
+fig.savefig(filename, format='png')
