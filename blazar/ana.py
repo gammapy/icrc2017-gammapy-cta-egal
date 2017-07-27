@@ -4,6 +4,7 @@ Example script to analyse 3FHL data. Does:
  - source simulation with and without cut-off in Fermi spectra
  - save results (significance and so on)
 """
+from __future__ import print_function
 import numpy as np
 import astropy.units as u
 from astropy.table import Table, Column, vstack
@@ -44,36 +45,20 @@ class AbsorbedSpectralModelExpoCutOff(SpectralModel):
 
 
 def average_simu(target, perf, params, n=20):
-    """
-    Function to compute average significance for N trials
-    """
-
-    sigma_list = []
+    """Compute average significance for `n` trials."""
+    sigmas = np.empty(n)
     for i in range(n):
-        simu = CTAObservationSimulation.simulate_obs(perf=perf,
-                                                     target=target,
-                                                     obs_param=params)
+        simu = CTAObservationSimulation.simulate_obs(
+            perf=perf, target=target, obs_param=params, random_state=i,
+        )
+        sigmas[i] = simu.total_stats_safe_range.sigma
 
-        stats = simu.total_stats_safe_range
-        sigma = stats.sigma
-        sigma_list.append(sigma)
-
-    av_sigma = 0
-    for sigma in sigma_list:
-        av_sigma += sigma
-    av_sigma = av_sigma / float(len(sigma_list))
-
-    sigma_rms = 0
-    for sigma in sigma_list:
-        sigma_rms += (sigma - av_sigma) ** 2
-    sigma_rms = sigma_rms / float(len(sigma_list))
-
-    return av_sigma, np.sqrt(sigma_rms)
+    return sigmas.mean(), sigmas.std()
 
 
 fermi = SourceCatalog3FHL()
 table_3fhl = fermi.table
-print('Fermi sources: {}'.format(len(table_3fhl)))
+print('Fermi sources:', len(table_3fhl))
 
 # Select blazars
 condition = np.logical_or.reduce((table_3fhl['CLASS'] == 'bll    ',
@@ -82,13 +67,13 @@ condition = np.logical_or.reduce((table_3fhl['CLASS'] == 'bll    ',
                                   table_3fhl['CLASS'] == 'FSRQ   '))
 index = np.where(condition)
 table = table_3fhl[index]
-print('Fermi blazars: {}'.format(len(table)))
+print('Fermi blazars:', len(table))
 
 # Select sources with redshift
 condition = np.isfinite(table['Redshift']) == True
 index = np.where(condition)
 table = table[index]
-print('Fermi blazars with z: {}'.format(len(table)))
+print('Fermi blazars with z:', len(table))
 
 # Select sources according to zenith angle
 south_site_lat = -25.
@@ -164,7 +149,7 @@ for idx, src in enumerate(fermi):
     is_south = False
     ana = 'N'
     src_type = (src.data['CLASS']).strip()
-    if dec >= south_lat_min and dec <= south_lat_max:
+    if south_lat_min <= dec < south_lat_max:
         is_south = True
         ana = 'S'
     print('Processing {} {} ({}/{})'.format(src_type, name, idx + 1, len(fermi.table)))
@@ -175,18 +160,13 @@ for idx, src in enumerate(fermi):
     alpha = 0.2 * u.Unit('')
     livetime = 20. * u.h
 
-    obs_param = ObservationParameters(alpha=alpha,
-                                      livetime=livetime,
-                                      emin=emin,
-                                      emax=emax)
+    obs_param = ObservationParameters(
+        alpha=alpha, livetime=livetime,
+        emin=emin, emax=emax,
+    )
 
     # Performance
-    cta_perf = None
-
-    if is_south is True:
-        cta_perf = cta_perf_south
-    else:
-        cta_perf = cta_perf_north
+    cta_perf = cta_perf_south if is_south else cta_perf_north
 
     # Absorbed spectral model
     abs_model = AbsorbedSpectralModel(spectral_model=fermi_model,
@@ -194,8 +174,10 @@ for idx, src in enumerate(fermi):
                                       parameter=redshift)
 
     # Absorbed spectral model with cut-off
-    cut_off_abs_model = AbsorbedSpectralModelExpoCutOff(spectral_model=abs_model,
-                                                        cut_off=cut_off / (1 + redshift))
+    cut_off_abs_model = AbsorbedSpectralModelExpoCutOff(
+        spectral_model=abs_model,
+        cut_off=cut_off / (1 + redshift),
+    )
 
     # Simulations
     target = Target(name=name, model=abs_model)
