@@ -23,12 +23,10 @@ def simulate(model, perf, livetime, emin, emax, obs_id, seed):
     target = Target(name=str(obs_id), model=model)
 
     # simulation
-    simu = CTAObservationSimulation.simulate_obs(perf=perf,
-                                                 target=target,
-                                                 obs_param=obs_param,
-                                                 obs_id=obs_id,
-                                                 seed=seed)
-    return simu
+    return CTAObservationSimulation.simulate_obs(
+        perf=perf, target=target, obs_param=obs_param,
+        obs_id=obs_id, random_state=seed,
+    )
 
 
 # Output directory
