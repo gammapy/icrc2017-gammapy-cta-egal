@@ -119,20 +119,17 @@ sigma.transpose()
 # Plot the significance for each time interval
 plt.figure()
 x, y = np.meshgrid(t_start.value, t_stop.value)
-plt.imshow(sigma,
-           extent=(y.min(), y.max(), x.max(), x.min()),
-           cmap='hot',
-           interpolation='none')
+plt.pcolormesh(x, y, sigma, cmap='hot')
+plt.ylim(t_start.value[-1], t_start.value[0])
 
 plt.xlabel('tstop (s)')
 plt.ylabel('tstart (s)')
 plt.xscale('log')
 plt.yscale('log')
-plt.colorbar()
+plt.colorbar(label='Detection significance')
 plt.title('{} (z={})'.format(grb_template['name'], grb_template['redshift']))
 plt.tight_layout()
-plt.show()
 
-# Save figure in pdf
 filename = 'plots/grb_twindow.png'
-plt.savefig(filename, format='png')
+print('Writing {}'.format(filename))
+plt.savefig(filename, format='png', dpi=300)
