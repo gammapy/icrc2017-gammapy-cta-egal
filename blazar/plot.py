@@ -2,6 +2,7 @@
 from __future__ import print_function
 from astropy.table import Table
 import matplotlib.pyplot as plt
+import numpy as np
 
 table = Table.read('data/results_cut1.00TeV.fits')
 print('Number of sources:', len(table))
@@ -22,7 +23,8 @@ ax.plot([table['Redshift'], table['Redshift']],
 
 def plot_sources(label, source_classes, sigma_col, **opts):
     """Helper function to select and plot sources of a given class"""
-    t = table[[row['CLASS'] in source_classes for row in table]]
+    mask = np.array([row['CLASS'] in source_classes for row in table])
+    t = table[mask]
     ax.errorbar(
         x=t['Redshift'], y=t[sigma_col], yerr=t[sigma_col + 'Err'],
         label=label, markersize=6, alpha=0.8, **opts
@@ -57,3 +59,5 @@ fig.savefig(filename, format='png', dpi=300)
 filename = 'plots/cut_off_agn_pop.pdf'
 print('Writing', filename)
 fig.savefig(filename, format='pdf')
+
+plt.show()
