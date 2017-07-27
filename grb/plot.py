@@ -29,7 +29,7 @@ plt.colorbar(label='Detection significance')
 plt.title('{} (z={})'.format(grb_info['name'], grb_info['redshift']))
 plt.tight_layout()
 
-filename = 'plots/grb_twindow.png'
+filename = 'grb_twindow.png'
 print('Writing', filename)
 plt.savefig(filename, format='png', dpi=300)
 
