@@ -1,88 +1,59 @@
-"""
-Small script to plot results
-"""
-import numpy as np
+"""Make blazar detectabiliity plot."""
+from __future__ import print_function
 from astropy.table import Table
 import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
 
-# Read results
-t_orig = Table.read('./data/results_cut1.00TeV.fits')
+table = Table.read('data/results_cut1.00TeV.fits')
+print('Number of sources:', len(table))
+table = table[table['Sigma'] >= 5.]
+print('Number of detected sources:', len(table))
 
-condition = np.logical_or.reduce((t_orig['CLASS'] == 'bll',
-                                  t_orig['CLASS'] == 'BLL'))
-index = np.where(condition)
-t_orig_bll = t_orig[index]
+fig, ax = plt.subplots(figsize=(6, 4))
 
-condition = np.logical_or.reduce((t_orig['CLASS'] == 'fsrq',
-                                  t_orig['CLASS'] == 'FSRQ'))
-index = np.where(condition)
-t_orig_fsrq = t_orig[index]
+ax.axhline(y=5, c='green', lw=3)
+ax.text(x=0.022, y=460, s='TECHNICAL PLOT', bbox=dict(color='white'),
+        fontsize=15, fontweight='bold', color='black', alpha=0.3)
 
-# Select detected sources
-t = t_orig[t_orig['Sigma'] >= 5.]
+# Draw line to connect the two significance estimates for each sources
+ax.plot([table['Redshift'], table['Redshift']],
+        [table['Sigma'], table['SigmaCut']],
+        c='b', lw=1, alpha=0.4)
 
-# Select bll and fsrqs
-condition = np.logical_or.reduce((t['CLASS'] == 'bll',
-                                  t['CLASS'] == 'BLL'))
-index = np.where(condition)
-t_bll = t[index]
 
-condition = np.logical_or.reduce((t['CLASS'] == 'fsrq',
-                                  t['CLASS'] == 'FSRQ'))
-index = np.where(condition)
-t_fsrq = t[index]
+def plot_sources(label, source_classes, sigma_col, **opts):
+    """Helper function to select and plot sources of a given class"""
+    t = table[[row['CLASS'] in source_classes for row in table]]
+    ax.errorbar(
+        x=t['Redshift'], y=t[sigma_col], yerr=t[sigma_col + 'Err'],
+        label=label, markersize=6, alpha=0.8, **opts
+    )
 
-# Start plot
-plt.figure()
-ax = plt.gca()
 
-# Significance VS redshift (with and without cut-off)
-ax.errorbar(t_bll['Redshift'], t_bll['Sigma'],
-            xerr=0, yerr=t_bll['SigmaErr'],
-            label='BL Lacs', c='blue', fmt='o')
+opts = dict(source_classes={'bll', 'BLL'}, c='blue', fmt='o')
+plot_sources(label='BL Lac', sigma_col='Sigma', **opts)
+plot_sources(label='BL Lac (with cutoff)', sigma_col='SigmaCut', fillstyle='none', **opts)
 
-ax.errorbar(t_fsrq['Redshift'], t_fsrq['Sigma'],
-            xerr=0, yerr=t_fsrq['SigmaErr'],
-            label='FSRQs', c='red', fmt='^')
-
-ax.errorbar(t_bll['Redshift'], t_bll['SigmaCut'],
-            xerr=0, yerr=t_bll['SigmaCutErr'],
-            label='BL Lacs with cut-off', c='blue', fmt='o', fillstyle='none')
-
-ax.errorbar(t_fsrq['Redshift'], t_fsrq['SigmaCut'],
-            xerr=0, yerr=t_fsrq['SigmaCutErr'],
-            label='FSRQs with cut-off', c='red', fmt='^', fillstyle='none')
-
-# Draw segment line to join same sources
-lines_list = list()
-for row in t:
-    x1 = row['Redshift']
-    y1 = row['Sigma']
-    x2 = row['Redshift']
-    y2 = row['SigmaCut']
-    lines_list.append([(x1, y1), (x2, y2)])
-lc = LineCollection(lines_list, colors='b', linewidths=1, alpha=0.2)
-ax.add_collection(lc)
+opts = dict(source_classes={'fsrq', 'FSRQ'}, c='red', fmt='s')
+plot_sources(label='FSRQ', sigma_col='Sigma', **opts)
+plot_sources(label='FSRQ (with cutoff)', sigma_col='SigmaCut', fillstyle='none', **opts)
 
 ax.set_yscale('log')
 ax.set_xscale('log')
-ax.set_xlim(0.02, 2.)
+
+ax.set_xlim(0.02, 2)
+ax.set_ylim(2, 700)
 
 ax.set_xlabel('Redshift')
-ax.set_ylabel('Significance (20 h livetime)')
+ax.set_ylabel('Significance (20 h observation time)')
 
-ax.plot([0.02, 2.], [5., 5.], c='green', lw=1, ls='--')
+ax.grid(which='both')
+ax.legend(loc='upper right')
+fig.tight_layout()
 
-ax.text(0.35, 0.93, 'TECHNICAL PLOT', style='italic', fontweight='bold',
-        bbox={'facecolor': 'white', 'alpha': 1, 'pad': 3},
-        verticalalignment='bottom', horizontalalignment='right',
-        transform=ax.transAxes, fontsize=15, color='black')
-
-plt.grid(True, which='both')
-ax.legend(loc='best', numpoints=1)
-plt.tight_layout()
-plt.show()
+filename = 'plots/cut_off_agn_pop.png'
+print('Writing', filename)
+fig.savefig(filename, format='png', dpi=300)
 
 filename = 'plots/cut_off_agn_pop.pdf'
-plt.savefig(filename, format='pdf')
+print('Writing', filename)
+fig.savefig(filename, format='pdf')
