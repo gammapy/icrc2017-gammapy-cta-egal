@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import astropy.units as u
@@ -73,5 +74,6 @@ plt.tight_layout()
 plt.show()
 
 # Save figure in pdf
-filename = 'plots/attenuation.png'
+filename = 'attenuation.png'
+print('Writing', filename)
 plt.savefig(filename, format='png')
