@@ -1,8 +1,6 @@
 # Extrapolation of blazars from Fermi/LAT catalogues
 
-In this example we simulate CTA data corresponding to an extrapolation of Fermi/LAT spectra. The impact of an hypothetical cut-off in the spectra on the level of the detection will be shown. Two scripts are used: 
- - [ana.py](./ana.py) to simulate and save data
- - [plot.py](./plot.py) to plot the results
+In this example we simulate CTA data corresponding to an extrapolation of Fermi/LAT spectra. The impact of an hypothetical cut-off in the spectra on the level of the detection will be shown.
 
 ## Source selection
 Sources are selected from 3FGL catalogue. The following criteria are used for the selection of te sources:
