@@ -33,4 +33,4 @@ the ouput of the fit.
 In this exmaple we plot the curves corresponding to a loss of 63 % of the
 photons due to the EBL and due to and intrisic cut-off.
 
-![alt tag](./plots/attenuation.png)
+![alt tag](./attenuation.png)
