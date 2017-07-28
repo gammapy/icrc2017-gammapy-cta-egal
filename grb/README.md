@@ -31,7 +31,7 @@ spectral template depending with time.
 
 The output is shown below:
 
-![alt tag](./plots/grb_twindow.png)
+![alt tag](./grb_twindow.png)
 
 [1] E. Bissaldi et al., "Prospects for Gamma-Ray Burst detection by the
 Cherenkov Telescope Array," in 11th Workshop on Science with the New generation
