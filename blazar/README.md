@@ -35,4 +35,4 @@ The following critera were used for the simulations:
 The outputs are stored in a FITS file which is further used to plot the result
 of the simulations, which is shown below.
 
-![alt tag](./plots/cut_off_agn_pop.png)
+![alt tag](./cut_off_agn_pop.png)
